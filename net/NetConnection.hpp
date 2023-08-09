@@ -17,10 +17,7 @@ public:
     };
     
     Connection(Owner parent, boost::asio::io_context& asioContext, boost::asio::ip::tcp::socket socket, TSQueue<OwnedMessage<T>>& qIn)
-        : m_asioContext(asioContext), m_socket(std::move(socket)), m_qMessagesIn(qIn)
-    {
-        m_nOwnerType = parent;
-    }
+        : m_socket(std::move(socket)), m_asioContext(asioContext), m_qMessagesIn(qIn), m_nOwnerType(parent) {}
 
     virtual ~Connection() {}
 
@@ -92,8 +89,7 @@ private:
     {
         boost::asio::async_read(m_socket, boost::asio::buffer(&m_msgTemporaryIn.header, sizeof(MessageHeader<T>)),
             [this](std::error_code ec, std::size_t length)
-        {
-            std::cout << "sizeof " << sizeof(MessageHeader<T>) << std::endl;    
+        {  
             if (!ec)
             {
                 if (m_msgTemporaryIn.header.size > 0)

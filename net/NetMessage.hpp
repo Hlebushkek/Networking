@@ -50,6 +50,9 @@ struct Message
     MessageHeader<T> header{};
     std::vector<uint8_t> body;
 
+    Message() {}
+    Message(const Message& other) : header(other.header), body(other.body) {}
+
     size_t size() const
     {
         return body.size();
@@ -124,6 +127,31 @@ struct SendableTrait<T, std::string> {
         msg.body.erase(msg.body.end() - dataSize, msg.body.end());
         
         msg.header.size = msg.size();
+    }
+};
+
+template <typename T, typename Q>
+struct SendableTrait<T, std::vector<Q>> {
+    static void push(Message<T>& msg, const std::vector<Q>& data)
+    {
+        for (auto& obj : data)
+            msg << obj;
+
+        msg << data.size();
+    }
+
+    static void pull(Message<T>& msg, std::vector<Q>& data)
+    {
+        size_t dataSize;
+        msg >> dataSize;
+        
+        if (dataSize > msg.body.size())
+            throw std::runtime_error("Not enough data in the message body to extract the vector");
+        
+        data.clear();
+        data.resize(dataSize);
+        for (size_t i = 0; i < dataSize; i++)
+            msg >> data[i];
     }
 };
 

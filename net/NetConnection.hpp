@@ -79,6 +79,11 @@ public:
         });
     }
 
+    void setID(uint32_t id)
+    {
+        this->id = id;
+    }
+
     uint32_t getID() const
     {
         return id;
@@ -95,13 +100,10 @@ private:
                 if (m_msgTemporaryIn.header.size > 0)
                 {
                     m_msgTemporaryIn.body.resize(m_msgTemporaryIn.header.size);
-                    std::cout << "readHeader readBody" << std::endl;
-                    std::cout << "size: " << this->m_msgTemporaryIn.header.size << std::endl;
                     readBody();
                 }
                 else
                 {
-                    std::cout << "readHeader else" << std::endl;
                     addToIncomingMessageQueue();
                 }
             }
@@ -120,7 +122,6 @@ private:
         {
             if (!ec)
             {
-                std::cout << "readBody addToIncomingMessageQueue" << std::endl;
                 addToIncomingMessageQueue();
             }
             else

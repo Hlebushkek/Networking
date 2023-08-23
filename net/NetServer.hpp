@@ -52,8 +52,6 @@ public:
         std::cout << "[SERVER] Stopped!\n";
     }
 
-    #pragma mark - Async
-
     void waitForClientConnection()
     {
         m_asioAcceptor.async_accept(
@@ -103,6 +101,26 @@ public:
             m_deqConnections.erase(
                 std::remove(m_deqConnections.begin(), m_deqConnections.end(), client), m_deqConnections.end()
             );
+        }
+    }
+
+    void messageClients(std::vector<std::shared_ptr<Connection<T>>> clients, const Message<T>& msg)
+    {
+        for (auto& client : clients)
+        {
+            if (client && client->isConnected())
+            {
+                client->send(msg);
+            }
+            else
+            {
+                onClientDisconnect(client);
+
+                client.reset();
+                m_deqConnections.erase(
+                    std::remove(m_deqConnections.begin(), m_deqConnections.end(), client), m_deqConnections.end()
+                );
+            }
         }
     }
 
